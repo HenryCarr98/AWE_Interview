@@ -1,4 +1,51 @@
-I can't commit to memory code or information across sessions or permanently—OpenAI's current design doesn't allow persistent memory between interactions unless you explicitly enable it in the Settings > Personalization > Memory section.
+# 🚀 Shock Tube Simulation: Parallelisation and Performance Analysis
+
+## Overview
+
+This document outlines the process of parallelising a 1D Lagrangian finite element solver for the compressible Euler equations (Sod's shock tube problem). The original C++ code was enhanced using OpenMP for shared-memory parallelism. Performance was then evaluated by varying thread counts and problem sizes.
+
+---
+
+## 1. Parallelisation Strategy
+
+The original serial implementation was modified to use OpenMP. Loops were parallelised only where safe, avoiding race conditions and preserving the physical accuracy of the simulation.
+
+### 🔧 Parallelised Components
+
+- **Initialisation Loops**:
+  - Node positions
+  - Cell densities, pressures, energies
+  - Cell volumes and masses
+  - Nodal masses and velocities
+
+- **Main Timestepping Loop**:
+  - Artificial viscosity and CFL condition (`reduction`)
+  - Half-step geometry predictor
+  - Pressure and volume updates
+  - Velocity and position updates
+  - Energy, density, and pressure correction
+
+### 📌 Key OpenMP Patterns
+
+- `#pragma omp parallel for` for embarrassingly parallel loops
+- `reduction(min: min_cfl)` to safely calculate the minimum CFL time step
+- Avoiding parallelisation at boundary nodes when applying zero-acceleration BCs
+
+The use of `std::unique_ptr` (for memory safety) is fully compatible with OpenMP since no aliasing occurs between the arrays.
+
+---
+
+## 2. Compilation Instructions
+
+### 🔨 Compilation (GCC + OpenMP)
+
+Update your Makefile:
+
+```makefile
+CXX = g++
+CXXFLAGS = -std=c++11 -O3 -fopenmp
+
+<!-- I can't commit to memory code or information across sessions or permanently—OpenAI's current design doesn't allow persistent memory between interactions unless you explicitly enable it in the Settings > Personalization > Memory section.
 
 However, within this session, I can reference or work with this C++ code as much as you'd like.
 
@@ -638,4 +685,4 @@ Speedup vs ideal scaling
 
 This gives you a clean and reproducible way to evaluate and report performance scaling.
 
-Would you like a combined Python script that produces both plots side-by-side?
+Would you like a combined Python script that produces both plots side-by-side? -->
